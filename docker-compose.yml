@@ -1,0 +1,193 @@
+services:
+  # PostgreSQL Database with PostGIS
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sig-agro-postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - sig-agro-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: sig-agro-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - sig-agro-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build:
+      context: .
+      dockerfile: ./services/user-service/Dockerfile
+    container_name: sig-agro-user-service
+    environment:
+      USER_SERVICE_PORT: 50051
+      USER_DB_URL: "postgres://user:password@postgres:5432/sig_agro_users?sslmode=disable"
+      JWT_SECRET: "your-secret-key-change-in-production"
+    ports:
+      - "50051:50051"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sig-agro-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:50051/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # Producer Service
+  producer-service:
+    build:
+      context: .
+      dockerfile: ./services/producer-service/Dockerfile
+    container_name: sig-agro-producer-service
+    environment:
+      PRODUCER_SERVICE_PORT: 50052
+      PRODUCER_DB_URL: "postgres://user:password@postgres:5432/sig_agro_producers?sslmode=disable"
+    ports:
+      - "50052:50052"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sig-agro-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:50052/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # Parcel Service
+  parcel-service:
+    build:
+      context: .
+      dockerfile: ./services/parcel-service/Dockerfile
+    container_name: sig-agro-parcel-service
+    environment:
+      PARCEL_SERVICE_PORT: 50053
+      PARCEL_DB_URL: "postgres://user:password@postgres:5432/sig_agro_parcels?sslmode=disable"
+    ports:
+      - "50053:50053"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sig-agro-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:50053/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # Production Service
+  production-service:
+    build:
+      context: .
+      dockerfile: ./services/production-service/Dockerfile
+    container_name: sig-agro-production-service
+    environment:
+      PRODUCTION_SERVICE_PORT: 50054
+    ports:
+      - "50054:50054"
+    networks:
+      - sig-agro-network
+
+  # Alert Service
+  alert-service:
+    build:
+      context: .
+      dockerfile: ./services/alert-service/Dockerfile
+    container_name: sig-agro-alert-service
+    environment:
+      ALERT_SERVICE_PORT: 50055
+    ports:
+      - "50055:50055"
+    networks:
+      - sig-agro-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./services/notification-service/Dockerfile
+    container_name: sig-agro-notification-service
+    environment:
+      NOTIFICATION_SERVICE_PORT: 50056
+    ports:
+      - "50056:50056"
+    networks:
+      - sig-agro-network
+
+  # Report Service
+  report-service:
+    build:
+      context: .
+      dockerfile: ./services/report-service/Dockerfile
+    container_name: sig-agro-report-service
+    environment:
+      REPORT_SERVICE_PORT: 50057
+    ports:
+      - "50057:50057"
+    networks:
+      - sig-agro-network
+
+  # HAProxy API Gateway
+  haproxy:
+    image: haproxy:2.8-alpine
+    container_name: sig-agro-haproxy
+    volumes:
+      - ./infrastructure/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./infrastructure/haproxy/certs:/etc/haproxy/certs:ro
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8404:8404"
+    depends_on:
+      - user-service
+      - producer-service
+      - parcel-service
+      - production-service
+      - alert-service
+      - notification-service
+      - report-service
+    networks:
+      - sig-agro-network
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  sig-agro-network:
+    driver: bridge

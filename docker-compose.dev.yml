@@ -1,0 +1,39 @@
+services:
+  # PostgreSQL Database with PostGIS for development
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sig-agro-postgres-dev
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - sig-agro-dev-network
+
+  # RabbitMQ for development
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: sig-agro-rabbitmq-dev
+    environment:
+      RABBITMQ_DEFAULT_USER: dev
+      RABBITMQ_DEFAULT_PASS: devpass
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbitmq_dev_data:/var/lib/rabbitmq
+    networks:
+      - sig-agro-dev-network
+
+volumes:
+  postgres_dev_data:
+  rabbitmq_dev_data:
+
+networks:
+  sig-agro-dev-network:
+    driver: bridge

@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package alert;
+
+option go_package = "github.com/sig-agro/api/proto/alert;alert";
+
+service AlertService {
+  rpc CreateAlert(CreateAlertRequest) returns (CreateAlertResponse);
+  rpc GetAlert(GetAlertRequest) returns (GetAlertResponse);
+  rpc ListAlerts(ListAlertsRequest) returns (ListAlertsResponse);
+  rpc EvaluateAlerts(EvaluateAlertsRequest) returns (EvaluateAlertsResponse);
+}
+
+message CreateAlertRequest {
+  int64 parcel_id = 1;
+  string alert_type = 2;
+  string severity = 3;
+  string message = 4;
+}
+
+message CreateAlertResponse {
+  int64 alert_id = 1;
+  string message = 2;
+}
+
+message GetAlertRequest {
+  int64 alert_id = 1;
+}
+
+message GetAlertResponse {
+  int64 alert_id = 1;
+  int64 parcel_id = 2;
+  string alert_type = 3;
+  string severity = 4;
+  string message = 5;
+  bool resolved = 6;
+  int64 created_at = 7;
+}
+
+message ListAlertsRequest {
+  int64 parcel_id = 1;
+  string severity = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListAlertsResponse {
+  repeated GetAlertResponse alerts = 1;
+  int32 total = 2;
+}
+
+message EvaluateAlertsRequest {
+}
+
+message EvaluateAlertsResponse {
+  int32 evaluated = 1;
+  int32 triggered = 2;
+  string message = 3;
+}

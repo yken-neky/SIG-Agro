@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/sig-agro/api/proto/user;user";
+
+service UserService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string full_name = 3;
+  string phone = 4;
+}
+
+message RegisterResponse {
+  int64 user_id = 1;
+  string email = 2;
+  string full_name = 3;
+  string message = 4;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  int64 user_id = 1;
+  string email = 2;
+  string token = 3;
+  int64 expires_at = 4;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  int64 user_id = 2;
+  string email = 3;
+  repeated string roles = 4;
+  string message = 5;
+}
+
+message GetUserRequest {
+  int64 user_id = 1;
+}
+
+message GetUserResponse {
+  int64 user_id = 1;
+  string email = 2;
+  string full_name = 3;
+  string phone = 4;
+  repeated string roles = 5;
+  int64 created_at = 6;
+}
+
+message ListUsersRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message ListUsersResponse {
+  repeated GetUserResponse users = 1;
+  int32 total = 2;
+}

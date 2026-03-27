@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package report;
+
+option go_package = "github.com/sig-agro/api/proto/report;report";
+
+service ReportService {
+  rpc GenerateReport(GenerateReportRequest) returns (GenerateReportResponse);
+  rpc GetReport(GetReportRequest) returns (GetReportResponse);
+  rpc ListReports(ListReportsRequest) returns (ListReportsResponse);
+}
+
+message GenerateReportRequest {
+  int64 producer_id = 1;
+  string report_type = 2;
+  int64 start_date = 3;
+  int64 end_date = 4;
+  repeated int64 parcel_ids = 5;
+}
+
+message GenerateReportResponse {
+  int64 report_id = 1;
+  string url = 2;
+  string message = 3;
+}
+
+message GetReportRequest {
+  int64 report_id = 1;
+}
+
+message GetReportResponse {
+  int64 report_id = 1;
+  int64 producer_id = 2;
+  string report_type = 3;
+  string url = 4;
+  int64 created_at = 5;
+}
+
+message ListReportsRequest {
+  int64 producer_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListReportsResponse {
+  repeated GetReportResponse reports = 1;
+  int32 total = 2;
+}

@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package parcel;
+
+option go_package = "github.com/sig-agro/api/proto/parcel;parcel";
+
+service ParcelService {
+  rpc CreateParcel(CreateParcelRequest) returns (CreateParcelResponse);
+  rpc GetParcel(GetParcelRequest) returns (GetParcelResponse);
+  rpc ListParcels(ListParcelsRequest) returns (ListParcelsResponse);
+  rpc UpdateParcel(UpdateParcelRequest) returns (UpdateParcelResponse);
+  rpc DeleteParcel(DeleteParcelRequest) returns (DeleteParcelResponse);
+  rpc QueryByGeometry(QueryByGeometryRequest) returns (QueryByGeometryResponse);
+}
+
+message CreateParcelRequest {
+  int64 producer_id = 1;
+  string name = 2;
+  string description = 3;
+  string geometry_wkt = 4;
+  double area_hectares = 5;
+  string crop_type = 6;
+}
+
+message CreateParcelResponse {
+  int64 parcel_id = 1;
+  string name = 2;
+  string message = 3;
+}
+
+message GetParcelRequest {
+  int64 parcel_id = 1;
+}
+
+message GetParcelResponse {
+  int64 parcel_id = 1;
+  int64 producer_id = 2;
+  string name = 3;
+  string description = 4;
+  string geometry_wkt = 5;
+  double area_hectares = 6;
+  string crop_type = 7;
+  int64 created_at = 8;
+}
+
+message ListParcelsRequest {
+  int64 producer_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListParcelsResponse {
+  repeated GetParcelResponse parcels = 1;
+  int32 total = 2;
+}
+
+message UpdateParcelRequest {
+  int64 parcel_id = 1;
+  string name = 2;
+  string description = 3;
+  string crop_type = 4;
+  string geometry_wkt = 5;
+}
+
+message UpdateParcelResponse {
+  int64 parcel_id = 1;
+  string message = 2;
+}
+
+message DeleteParcelRequest {
+  int64 parcel_id = 1;
+}
+
+message DeleteParcelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message QueryByGeometryRequest {
+  string geometry_wkt = 1;
+  string query_type = 2;
+}
+
+message QueryByGeometryResponse {
+  repeated GetParcelResponse parcels = 1;
+  int32 total = 2;
+}

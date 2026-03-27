@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package notification;
+
+option go_package = "github.com/sig-agro/api/proto/notification;notification";
+
+service NotificationService {
+  rpc SendNotification(SendNotificationRequest) returns (SendNotificationResponse);
+  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc MarkAsRead(MarkAsReadRequest) returns (MarkAsReadResponse);
+}
+
+message SendNotificationRequest {
+  int64 user_id = 1;
+  string notification_type = 2;
+  string channel = 3;
+  string title = 4;
+  string message = 5;
+  map<string, string> metadata = 6;
+}
+
+message SendNotificationResponse {
+  int64 notification_id = 1;
+  string message = 2;
+}
+
+message GetNotificationRequest {
+  int64 notification_id = 1;
+}
+
+message GetNotificationResponse {
+  int64 notification_id = 1;
+  int64 user_id = 2;
+  string notification_type = 3;
+  string channel = 4;
+  string title = 5;
+  string message = 6;
+  bool read = 7;
+  int64 created_at = 8;
+}
+
+message ListNotificationsRequest {
+  int64 user_id = 1;
+  bool unread_only = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListNotificationsResponse {
+  repeated GetNotificationResponse notifications = 1;
+  int32 total = 2;
+}
+
+message MarkAsReadRequest {
+  int64 notification_id = 1;
+}
+
+message MarkAsReadResponse {
+  bool success = 1;
+  string message = 2;
+}

@@ -1,0 +1,55 @@
+# Build artifacts
+bin/
+dist/
+*.o
+*.a
+*.so
+
+# Test binaries
+*.test
+*.out
+coverage.out
+*.cover
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+.env.local
+
+# Go
+go.sum
+vendor/
+
+# Generated code
+#**/*.pb.go
+#**/*_grpc.pb.go
+#internal/repository/sqlc/
+
+# Certificates
+infrastructure/haproxy/certs/
+!infrastructure/haproxy/certs/.gitkeep
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Environment files
+.env
+.env.*.local
+
+# Database
+postgres_data/
+*.db
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Temporary
+tmp/
+temp/
