@@ -21,7 +21,7 @@ coverage.out
 .env.local
 
 # Go
-go.sum
+#go.sum
 vendor/
 
 # Generated code
