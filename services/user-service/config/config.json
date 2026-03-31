@@ -1,0 +1,27 @@
+{
+  "database": {
+    "user": "user",
+    "pass": "password",
+    "host": "localhost",
+    "port": 5432,
+    "db_name": "sig_agro_users",
+    "connection_life_time": 300,
+    "pool": 10,
+    "idle_connections": 5
+  },
+  "redis": {
+    "host": "localhost",
+    "pass": "",
+    "database": 0,
+    "pool": 10,
+    "idle_connections": 5,
+    "port": 6379
+  },
+  "privacy_service_host": "",
+  "listen_port": 50051,
+  "http2_listen_port": 8080,
+  "syslog_address": "",
+  "logs_to_stdout": true,
+  "gin_logs": true,
+  "error_level": 1
+}
